@@ -53,6 +53,11 @@ public class BaseOperation
         conf.set("hbase.zookeeper.property.clientPort", "2181"); 
 		conf.set("zookeeper.session.timeout", "2000");
 		System.out.println(conf.get("hbase.zookeeper.quorum"));
+		/**
+		 * hbase.client.keyvalue.maxsize=10M
+		 * 如果想保存大于10M的value数据到HBase，需要修改hbase.client.keyvalue.maxsize参数，并且对应修改master及regionServer的堆大小，重启hbase
+		 */
+		conf.set("hbase.client.keyvalue.maxsize","524288000");//最大500m  
 	}
 	
 	/**
@@ -123,7 +128,7 @@ public class BaseOperation
 	/**
 	 * 插入一行记录
 	 */
-	public static void addImage(String tableName,Connection connection, String rowKey, String family, String qualifier,
+	public static void addMedia(String tableName,Connection connection, String rowKey, String family, String qualifier,
 		String imagePath)
 		throws Exception
 	{
@@ -189,7 +194,7 @@ public class BaseOperation
 	/**
 	 * 查找一行记录
 	 */
-	public static void getOneImage(String tableName, Connection connection,String rowKey,String targetPath)
+	public static void getOneMedia(String tableName, Connection connection,String rowKey,String targetPath)
 		throws IOException
 	{
 		TableName tName = TableName.valueOf(tableName);
@@ -256,7 +261,7 @@ public class BaseOperation
 			
 			// add record zkb
 //			BaseOperation.addRecord(tablename, connection,"zkb", "grade", "", "5");
-//			BaseOperation.addImage(tablename, connection,"zkb1", "grade", "", "F:/hbase/77.jpg");
+			BaseOperation.addMedia(tablename, connection,"zkb4", "grade", "", "F:\\hbase\\1.mp4");
 //			BaseOperation.addRecord(tablename, connection,"zkb", "course", "", "90");
 //			BaseOperation.addRecord(tablename, connection,"zkb", "course", "math", "97");
 //			BaseOperation.addRecord(tablename, connection,"zkb", "course", "art", "87");
@@ -266,7 +271,7 @@ public class BaseOperation
 			
 			System.out.println("===========get one record========");
 //			BaseOperation.getOneRecord(tablename, connection,"zkb");
-			BaseOperation.getOneImage(tablename, connection, "zkb", "./77.jpg");
+			BaseOperation.getOneMedia(tablename, connection, "zkb4", "./11.mp4");
 			
 //			System.out.println("===========show all record========");
 //			BaseOperation.getAllRecord(tablename,connection);
