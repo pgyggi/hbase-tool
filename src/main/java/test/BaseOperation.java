@@ -1,4 +1,5 @@
 package test;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +32,10 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.RegexStringComparator;
+import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 /**
  * @author Administrator
@@ -52,16 +57,18 @@ public class BaseOperation
 		conf.set("hbase.zookeeper.quorum","192.168.20.48,192.168.20.49,192.168.20.51");  
         conf.set("hbase.zookeeper.property.clientPort", "2181"); 
 		conf.set("zookeeper.session.timeout", "2000");
-		System.out.println(conf.get("hbase.zookeeper.quorum"));
 		/**
 		 * hbase.client.keyvalue.maxsize=10M
-		 * »Áπ˚œÎ±£¥Ê¥Û”⁄10Mµƒvalue ˝æ›µΩHBase£¨–Ë“™–ﬁ∏ƒhbase.client.keyvalue.maxsize≤Œ ˝£¨≤¢«“∂‘”¶–ﬁ∏ƒmasterº∞regionServerµƒ∂—¥Û–°£¨÷ÿ∆Ùhbase
+		 * ÈªòËÆ§ÊÉÖÂÜµ‰∏ãÔºåHbaseÁöÑvalueÂ§ßÂ∞è‰∏∫10MÔºåÂΩìË¶ÅÂ≠òÂÇ®Â§ß‰∫é10MÁöÑÊï∞ÊçÆÊó∂Ôºå
+		 * È¶ñÂÖàË¶ÅÂú®Hbase‰∏≠ÈÖçÁΩÆhbase.client.keyvalue.maxsize=100MÔºå
+		 * Â¶ÇÊûúHbaseËøõÁ®ãÈÄÄÂá∫ÔºåÂèØËÉΩÊòØÂõ†‰∏∫javaÂ†ÜÂ§ßÂ∞èÈÖçÁΩÆÊúâÈóÆÈ¢òÔºåÈÖçÁΩÆHMaseÂíåHRegionServerÁöÑÂ†ÜÂ§ßÂ∞èÂç≥ÂèØ„ÄÇ
 		 */
-		conf.set("hbase.client.keyvalue.maxsize","524288000");//◊Ó¥Û500m  
+		conf.set("hbase.client.keyvalue.maxsize","524288000");//ÔøΩÔøΩÔøΩ500m  
+		System.out.println(conf.get("hbase.zookeeper.quorum"));
 	}
 	
 	/**
-	 * ¥¥Ω®“ª’≈±Ì
+	 * ÂàõÂª∫‰∏ÄÂº†Ë°®
 	 */
 	public static void creatTable(String tableName, Connection connection, String[] familys) throws Exception {
 		TableName tName = TableName.valueOf(tableName);
@@ -79,7 +86,7 @@ public class BaseOperation
 	}
 	
 	/**
-	 * …æ≥˝±Ì
+	 * Âà†Èô§Ë°®
 	 */
 	public static void deleteTable(String tableName,Connection connection)
 		throws Exception
@@ -104,7 +111,7 @@ public class BaseOperation
 	}
 	
 	/**
-	 * ≤Â»Î“ª––º«¬º
+	 * ÊèíÂÖ•‰∏ÄË°åËÆ∞ÂΩï
 	 */
 	public static void addRecord(String tableName,Connection connection, String rowKey, String family, String qualifier,
 		String value)
@@ -126,9 +133,9 @@ public class BaseOperation
 		}
 	}
 	/**
-	 * ≤Â»Î“ª––º«¬º
+	 * ÊèíÂÖ•‰∏ÄË°åËÆ∞ÂΩï
 	 */
-	public static void addMedia(String tableName,Connection connection, String rowKey, String family, String qualifier,
+	public static void addImage(String tableName,Connection connection, String rowKey, String family, String qualifier,
 		String imagePath)
 		throws Exception
 	{
@@ -155,7 +162,7 @@ public class BaseOperation
 	}
 	
 	/**
-	 * …æ≥˝“ª––º«¬º
+	 * Âà†Èô§‰∏ÄË°åËÆ∞ÂΩï
 	 */
 	public static void delRecord(String tableName,Connection connection, String rowKey)
 		throws IOException
@@ -170,7 +177,7 @@ public class BaseOperation
 	}
 	
 	/**
-	 * ≤È’““ª––º«¬º
+	 * Êü•Êâæ‰∏ÄË°åËÆ∞ÂΩï
 	 */
 	public static void getOneRecord(String tableName, Connection connection,String rowKey)
 		throws IOException
@@ -188,13 +195,13 @@ public class BaseOperation
 			System.out.print(Bytes.toString(CellUtil.cloneQualifier(cell))+"=>");
 			String date = sdf.format(new Date(cell.getTimestamp()));
 			System.out.println(date+"=>");
-			System.out.println(Bytes.toString(CellUtil.cloneValue(cell)));
+			System.out.println(new String(CellUtil.cloneValue(cell),"UTF-8"));
 		}
 	}
 	/**
-	 * ≤È’““ª––º«¬º
+	 * Êü•Êâæ‰∏ÄË°åËÆ∞ÂΩï
 	 */
-	public static void getOneMedia(String tableName, Connection connection,String rowKey,String targetPath)
+	public static void getOneImage(String tableName, Connection connection,String rowKey,String targetPath)
 		throws IOException
 	{
 		TableName tName = TableName.valueOf(tableName);
@@ -217,7 +224,7 @@ public class BaseOperation
 	}
 	
 	/**
-	 * œ‘ æÀ˘”– ˝æ›
+	 * ÊòæÁ§∫ÊâÄÊúâÊï∞ÊçÆ
 	 */
 	public static void getAllRecord(String tableName,Connection connection)
 	{
@@ -247,21 +254,50 @@ public class BaseOperation
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * ÊòæÁ§∫ÊâÄÊúâÊï∞ÊçÆ
+	 */
+	public static List<String> getRegexRowkey(String tableName,Connection connection,String regex)
+	{
 	
+		List<String> rowkeys= new ArrayList<String>();
+		try
+		{
+			TableName tName = TableName.valueOf(tableName);
+			Table table = connection.getTable(tName);
+			Scan s = new Scan();
+//			FamilyFilter filter = new FamilyFilter(CompareFilter.CompareOp.EQUAL,new BinaryComparator(Bytes.toBytes("course")));
+			Filter filter = new RowFilter(CompareFilter.CompareOp.EQUAL,new RegexStringComparator(regex));
+			s.setFilter(filter);
+			ResultScanner ss = table.getScanner(s);
+			for (Result r : ss)
+			{
+				for (Cell cell : r.listCells())
+				{
+					rowkeys.add(Bytes.toString(CellUtil.cloneRow(cell)));
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		return rowkeys;
+	}
 	public static void main(String[] agrs)
 	{
 	
 		try
 		{
 			String tablename = "scores";
-			String[] familys = { "grade", "course" };
+			String[] familys = { "course" };
 			Long start = System.currentTimeMillis();
 			Connection connection = ConnectionFactory.createConnection(conf);
 //			BaseOperation.creatTable(tablename,connection, familys);
 			
 			// add record zkb
 //			BaseOperation.addRecord(tablename, connection,"zkb", "grade", "", "5");
-			BaseOperation.addMedia(tablename, connection,"zkb4", "grade", "", "F:\\hbase\\1.mp4");
+//			BaseOperation.addImage(tablename, connection,"zkb1", "grade", "", "F:/hbase/77.jpg");
 //			BaseOperation.addRecord(tablename, connection,"zkb", "course", "", "90");
 //			BaseOperation.addRecord(tablename, connection,"zkb", "course", "math", "97");
 //			BaseOperation.addRecord(tablename, connection,"zkb", "course", "art", "87");
@@ -270,11 +306,18 @@ public class BaseOperation
 //			BaseOperation.addRecord(tablename, connection,"baoniu", "course", "math", "89");
 			
 			System.out.println("===========get one record========");
-//			BaseOperation.getOneRecord(tablename, connection,"zkb");
-			BaseOperation.getOneMedia(tablename, connection, "zkb4", "./11.mp4");
+//			BaseOperation.getOneRecord(tablename, connection,"http://api.51job.com/api/job/get_job_info.php?jobid=56737124");
+//			BaseOperation.getOneImage(tablename, connection, "zkb", "./77.jpg");
 			
 //			System.out.println("===========show all record========");
 //			BaseOperation.getAllRecord(tablename,connection);
+			List<String> rowkeys = getRegexRowkey(tablename, connection,"grade");
+			System.out.println(rowkeys);
+//			System.out.println(rowkeys.size()/14);
+//			for(String rowkey :rowkeys){
+//				System.out.println(rowkey);
+//				//delRecord(tablename, connection,rowkey);
+//			}
 //			
 //			System.out.println("===========del one record========");
 //			BaseOperation.delRecord(tablename, connection,"baoniu");
@@ -283,6 +326,7 @@ public class BaseOperation
 //			System.out.println("===========show all record========");
 //			BaseOperation.getAllRecord(tablename,connection);
 			System.out.println(System.currentTimeMillis()-start);
+			connection.close();
 		}
 		catch (Exception e)
 		{
