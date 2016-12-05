@@ -6,11 +6,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -232,21 +234,17 @@ public class BaseOperation
 		try
 		{
 			TableName tName = TableName.valueOf(tableName);
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 			Table table = connection.getTable(tName);
 			Scan s = new Scan();
 			ResultScanner ss = table.getScanner(s);
 			for (Result r : ss)
 			{
+				StringBuilder sb = new StringBuilder();
 				for (Cell cell : r.listCells())
 				{
-					System.out.print(Bytes.toString(CellUtil.cloneRow(cell))+"=>");
-					System.out.print(Bytes.toString(CellUtil.cloneFamily(cell))+":");
-					System.out.print(Bytes.toString(CellUtil.cloneQualifier(cell))+"=>");
-					String date = sdf.format(new Date(cell.getTimestamp()));
-					System.out.println(date+"=>");
-					System.out.println(Bytes.toString(CellUtil.cloneValue(cell)));
+					sb.append(Bytes.toString(CellUtil.cloneValue(cell))+"\t");
 				}
+				FileUtils.writeStringToFile(new File("result.txt"), sb.toString()+"\n",Charset.forName("gbk"), true);
 			}
 		}
 		catch (IOException e)
@@ -274,7 +272,7 @@ public class BaseOperation
 			{
 				for (Cell cell : r.listCells())
 				{
-					rowkeys.add(Bytes.toString(CellUtil.cloneRow(cell)));
+					rowkeys.add(Bytes.toString(CellUtil.cloneRow(cell))+"<====>"+Bytes.toString(CellUtil.cloneValue(cell)));
 				}
 			}
 		}
@@ -289,7 +287,7 @@ public class BaseOperation
 	
 		try
 		{
-			String tablename = "scores";
+			String tablename = "zhaopin:zhilian";
 			String[] familys = { "course" };
 			Long start = System.currentTimeMillis();
 			Connection connection = ConnectionFactory.createConnection(conf);
@@ -306,17 +304,15 @@ public class BaseOperation
 //			BaseOperation.addRecord(tablename, connection,"baoniu", "course", "math", "89");
 			
 			System.out.println("===========get one record========");
-//			BaseOperation.getOneRecord(tablename, connection,"http://api.51job.com/api/job/get_job_info.php?jobid=56737124");
+//			BaseOperation.getOneRecord(tablename, connection,"http://jobs.51job.com/shenyang-shq/65495545.html?s=02");
 //			BaseOperation.getOneImage(tablename, connection, "zkb", "./77.jpg");
 			
 //			System.out.println("===========show all record========");
-//			BaseOperation.getAllRecord(tablename,connection);
-			List<String> rowkeys = getRegexRowkey(tablename, connection,"grade");
-			System.out.println(rowkeys);
+			BaseOperation.getAllRecord(tablename,connection);
+//			List<String> rowkeys = getRegexRowkey(tablename, connection,"http://jobs.51job.com.*?");
 //			System.out.println(rowkeys.size()/14);
 //			for(String rowkey :rowkeys){
 //				System.out.println(rowkey);
-//				//delRecord(tablename, connection,rowkey);
 //			}
 //			
 //			System.out.println("===========del one record========");
